@@ -1,4 +1,3 @@
-// screens/SettingsScreen.js
 import React, { useContext } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import ThemeToggleSwitch from '../components/ThemeToggleSwitch';

@@ -1,8 +1,9 @@
 // screens/EditProfileScreen.js
-import React from 'react';
+import React, { useContext } from 'react';
 import { View, TextInput, Button, StyleSheet, Text } from 'react-native';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
+import { ThemeContext } from '../context/ThemeContext'; // ✅ import Context
 
 const schema = Yup.object().shape({
   name: Yup.string().required('Name is required'),
@@ -10,10 +11,16 @@ const schema = Yup.object().shape({
 });
 
 const EditProfileScreen = ({ route, navigation }) => {
+  const { theme, themeStyles } = useContext(ThemeContext); // ✅ lấy theme hiện tại
   const { profile, setProfile } = route.params;
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: themeStyles[theme].backgroundColor },
+      ]}
+    >
       <Formik
         initialValues={profile}
         validationSchema={schema}
@@ -25,22 +32,44 @@ const EditProfileScreen = ({ route, navigation }) => {
         {({ handleChange, handleSubmit, values, errors }) => (
           <>
             <TextInput
-              style={styles.input}
+              style={[
+                styles.input,
+                {
+                  color: themeStyles[theme].color,
+                  borderColor: theme === 'dark' ? '#888' : '#ccc',
+                },
+              ]}
               value={values.name}
               onChangeText={handleChange('name')}
               placeholder="Enter your name"
+              placeholderTextColor={theme === 'dark' ? '#aaa' : '#666'}
             />
-            {errors.name && <Text style={styles.error}>{errors.name}</Text>}
+            {errors.name && (
+              <Text style={[styles.error, { color: 'red' }]}>{errors.name}</Text>
+            )}
 
             <TextInput
-              style={styles.input}
+              style={[
+                styles.input,
+                {
+                  color: themeStyles[theme].color,
+                  borderColor: theme === 'dark' ? '#888' : '#ccc',
+                },
+              ]}
               value={values.bio}
               onChangeText={handleChange('bio')}
               placeholder="Enter your bio"
+              placeholderTextColor={theme === 'dark' ? '#aaa' : '#666'}
             />
-            {errors.bio && <Text style={styles.error}>{errors.bio}</Text>}
+            {errors.bio && (
+              <Text style={[styles.error, { color: 'red' }]}>{errors.bio}</Text>
+            )}
 
-            <Button title="Save Changes" onPress={handleSubmit} />
+            <Button
+              title="Save Changes"
+              onPress={handleSubmit}
+              color={theme === 'dark' ? '#888' : '#007bff'}
+            />
           </>
         )}
       </Formik>
@@ -57,12 +86,11 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
     borderRadius: 8,
     padding: 10,
     marginVertical: 8,
   },
   error: {
-    color: 'red',
+    marginBottom: 5,
   },
 });
