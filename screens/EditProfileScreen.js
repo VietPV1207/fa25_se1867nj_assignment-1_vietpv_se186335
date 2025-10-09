@@ -1,17 +1,28 @@
-// screens/EditProfileScreen.js
 import React, { useContext } from 'react';
 import { View, TextInput, Button, StyleSheet, Text } from 'react-native';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-import { ThemeContext } from '../context/ThemeContext'; // ✅ import Context
+import { ThemeContext } from '../context/ThemeContext';
 
+// 🧩 Schema kiểm tra chặt chẽ hơn
 const schema = Yup.object().shape({
-  name: Yup.string().required('Name is required'),
-  bio: Yup.string().max(100, 'Bio must be under 100 characters'),
+  name: Yup.string()
+    .trim()
+    .required('Name is required')
+    .min(2, 'Name must be at least 2 characters')
+    .matches(/^[A-Za-zÀ-ỹ\s]+$/, 'Name can only contain letters and spaces')
+    .test('no-multiple-spaces', 'Too many spaces', value =>
+      value ? !value.match(/\s{2,}/) : true
+    ),
+  bio: Yup.string()
+    .trim()
+    .required('Bio cannot be empty')
+    .min(10, 'Bio must be at least 10 characters')
+    .max(120, 'Bio must be under 120 characters'),
 });
 
 const EditProfileScreen = ({ route, navigation }) => {
-  const { theme, themeStyles } = useContext(ThemeContext); // ✅ lấy theme hiện tại
+  const { theme, themeStyles } = useContext(ThemeContext);
   const { profile, setProfile } = route.params;
 
   return (
@@ -24,19 +35,30 @@ const EditProfileScreen = ({ route, navigation }) => {
       <Formik
         initialValues={profile}
         validationSchema={schema}
+        validateOnChange={true} // ✅ kiểm tra realtime khi nhập
+        validateOnBlur={true}
         onSubmit={values => {
-          setProfile(values);
+          setProfile({
+            ...values,
+            name: values.name.trim(),
+            bio: values.bio.trim(),
+          });
           navigation.goBack();
         }}
       >
-        {({ handleChange, handleSubmit, values, errors }) => (
+        {({ handleChange, handleSubmit, values, errors, touched }) => (
           <>
             <TextInput
               style={[
                 styles.input,
                 {
                   color: themeStyles[theme].color,
-                  borderColor: theme === 'dark' ? '#888' : '#ccc',
+                  borderColor:
+                    errors.name && touched.name
+                      ? 'red'
+                      : theme === 'dark'
+                      ? '#888'
+                      : '#ccc',
                 },
               ]}
               value={values.name}
@@ -44,8 +66,8 @@ const EditProfileScreen = ({ route, navigation }) => {
               placeholder="Enter your name"
               placeholderTextColor={theme === 'dark' ? '#aaa' : '#666'}
             />
-            {errors.name && (
-              <Text style={[styles.error, { color: 'red' }]}>{errors.name}</Text>
+            {errors.name && touched.name && (
+              <Text style={styles.error}>{errors.name}</Text>
             )}
 
             <TextInput
@@ -53,16 +75,22 @@ const EditProfileScreen = ({ route, navigation }) => {
                 styles.input,
                 {
                   color: themeStyles[theme].color,
-                  borderColor: theme === 'dark' ? '#888' : '#ccc',
+                  borderColor:
+                    errors.bio && touched.bio
+                      ? 'red'
+                      : theme === 'dark'
+                      ? '#888'
+                      : '#ccc',
                 },
               ]}
               value={values.bio}
               onChangeText={handleChange('bio')}
               placeholder="Enter your bio"
               placeholderTextColor={theme === 'dark' ? '#aaa' : '#666'}
+              multiline
             />
-            {errors.bio && (
-              <Text style={[styles.error, { color: 'red' }]}>{errors.bio}</Text>
+            {errors.bio && touched.bio && (
+              <Text style={styles.error}>{errors.bio}</Text>
             )}
 
             <Button
@@ -91,6 +119,8 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
   error: {
-    marginBottom: 5,
+    color: 'red',
+    fontSize: 14,
+    marginBottom: 4,
   },
 });

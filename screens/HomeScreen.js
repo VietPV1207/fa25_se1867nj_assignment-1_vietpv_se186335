@@ -1,10 +1,9 @@
-// screens/HomeScreen.js
 import React, { useContext } from "react";
 import { View, Text, Button, StyleSheet } from "react-native";
 import { ThemeContext } from "../context/ThemeContext";
 
 const HomeScreen = ({ navigation }) => {
-  const { theme, themeStyles } = useContext(ThemeContext); // ✅ lấy theme hiện tại
+  const { theme, themeStyles } = useContext(ThemeContext); 
 
   return (
     <View
@@ -14,19 +13,13 @@ const HomeScreen = ({ navigation }) => {
       ]}
     >
       <Text style={[styles.text, { color: themeStyles[theme].color }]}>
-        Welcome to the Profile App 👋
+        Welcome to the Profile App
       </Text>
 
       <View style={styles.buttonGroup}>
         <Button
           title="Go to Profile"
           onPress={() => navigation.navigate("Profile")}
-          color={theme === "dark" ? "#aaa" : "#007bff"}
-        />
-        <View style={{ height: 10 }} />
-        <Button
-          title="Settings"
-          onPress={() => navigation.navigate("Settings")}
           color={theme === "dark" ? "#aaa" : "#007bff"}
         />
       </View>
